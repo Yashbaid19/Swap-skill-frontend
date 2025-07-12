@@ -2,19 +2,23 @@
 const getBaseURL = () => {
   // If VITE_API_URL is explicitly set, use it
   if (import.meta.env.VITE_API_URL) {
+    console.log("Using VITE_API_URL:", import.meta.env.VITE_API_URL);
     return import.meta.env.VITE_API_URL;
   }
 
   // In development (localhost), use proxy (empty string)
   if (window.location.hostname === "localhost") {
+    console.log("Using localhost proxy");
     return "";
   }
 
   // In production, use the backend URL
+  console.log("Using production backend URL");
   return "https://skill-swap-backend-io0v.onrender.com";
 };
 
 const baseURL = getBaseURL();
+console.log("API baseURL configured as:", baseURL);
 
 // Helper function to get auth token
 const getAuthToken = () => {
