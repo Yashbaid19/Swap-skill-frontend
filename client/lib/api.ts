@@ -82,6 +82,17 @@ const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
     return response;
   } catch (networkError) {
     console.error("Network error:", networkError);
+
+    // Check if it's a CORS error
+    if (
+      networkError instanceof TypeError &&
+      networkError.message === "Failed to fetch"
+    ) {
+      throw new Error(
+        `CORS error: Cannot connect to backend server at ${baseURL}. This may be due to CORS policy restrictions. The backend may need to allow this domain: ${window.location.origin}`,
+      );
+    }
+
     throw new Error(
       `Cannot connect to backend server at ${baseURL}. Please check if the server is running and the URL is correct.`,
     );
