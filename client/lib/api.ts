@@ -2,14 +2,7 @@ const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 // Helper function to get auth token
 const getAuthToken = () => {
-  const token = localStorage.getItem("authToken");
-  // Don't send demo token to backend
-  return token === "demo-token" ? null : token;
-};
-
-// Helper function to check if user is in demo mode
-const isDemoMode = () => {
-  return localStorage.getItem("authToken") === "demo-token";
+  return localStorage.getItem("authToken");
 };
 
 // Helper function to handle API responses
@@ -54,11 +47,6 @@ const handleResponse = async (response: Response) => {
 
 // Helper function to make authenticated requests
 const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
-  // If in demo mode, throw error to trigger fallback
-  if (isDemoMode()) {
-    throw new Error("Demo mode: API calls are disabled");
-  }
-
   const token = getAuthToken();
 
   try {
@@ -225,16 +213,6 @@ export const userApi = {
   },
 
   uploadProfilePicture: async (file: File) => {
-    // If in demo mode, create a mock URL
-    if (isDemoMode()) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const mockImageUrl = URL.createObjectURL(file);
-          resolve({ imageUrl: mockImageUrl });
-        }, 1000);
-      });
-    }
-
     const formData = new FormData();
     formData.append("profilePhoto", file); // Backend expects "profilePhoto" field
 
