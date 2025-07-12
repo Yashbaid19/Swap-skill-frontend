@@ -101,6 +101,7 @@ export const authApi = {
     try {
       const response = await fetch(`${baseURL}/api/auth/login`, {
         method: "POST",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
@@ -119,6 +120,7 @@ export const authApi = {
     try {
       const response = await fetch(`${baseURL}/api/auth/forgot-password`, {
         method: "POST",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
@@ -139,6 +141,7 @@ export const authApi = {
         `${baseURL}/api/auth/reset-password/${token}`,
         {
           method: "POST",
+          mode: "cors",
           headers: {
             "Content-Type": "application/json",
           },
