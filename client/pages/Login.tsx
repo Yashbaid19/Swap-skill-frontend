@@ -22,17 +22,7 @@ export default function Login() {
       navigate("/dashboard");
     } catch (error: any) {
       // Show user-friendly error message
-      if (
-        error.message?.includes("Cannot connect to backend") ||
-        error.message?.includes("API endpoint not found") ||
-        error.message?.includes("HTTP 404")
-      ) {
-        alert(
-          "Backend server not available. The app will continue in demo mode with sample data.",
-        );
-      } else {
-        alert(error.message || "Login failed. Please try again.");
-      }
+      alert(error.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
