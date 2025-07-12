@@ -7,10 +7,12 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // state for errors
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null); // reset any old error
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
@@ -18,21 +20,10 @@ export default function Login() {
 
     try {
       await login(email, password);
-      // Redirect to dashboard after successful login
       navigate("/dashboard");
     } catch (error: any) {
-      // Show user-friendly error message
-      if (
-        error.message?.includes("Cannot connect to backend") ||
-        error.message?.includes("API endpoint not found") ||
-        error.message?.includes("HTTP 404")
-      ) {
-        alert(
-          "Backend server not available. The app will continue in demo mode with sample data.",
-        );
-      } else {
-        alert(error.message || "Login failed. Please try again.");
-      }
+      // ❌ Removed demo mode message
+      setErrorMessage(error.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -110,6 +101,12 @@ export default function Login() {
               Sign Up for SkillSwap
             </Link>
           </form>
+
+          {errorMessage && (
+            <div className="mt-4 text-sm text-red-600 text-center">
+              {errorMessage}
+            </div>
+          )}
         </div>
       </div>
     </div>

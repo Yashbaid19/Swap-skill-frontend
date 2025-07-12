@@ -85,18 +85,15 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { isAuthenticated, user, updateUser } = useAuth();
   const [processingRequest, setProcessingRequest] = useState<string | null>(
-    null,
+    null
   );
-
-  // State for dashboard data
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null,
+    null
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  // State for dashboard stats from new API
   const [dashboardStats, setDashboardStats] = useState({
     totalSwaps: 0,
     acceptedSwaps: 0,
@@ -106,54 +103,22 @@ export default function Dashboard() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
 
-  // Load dashboard data
   const loadDashboardData = async () => {
     try {
       setError(null);
       const data = await userApi.getDashboard(user?.id);
       setDashboardData(data);
-
-      // Update user context with latest user data
-      if (data.user) {
-        updateUser(data.user);
-      }
+      if (data.user) updateUser(data.user);
     } catch (err: any) {
       console.error("Error loading dashboard:", err);
       setError(err.message || "Failed to load dashboard data");
-
-      // Fallback to mock data if API fails
-      setDashboardData({
-        user: {
-          name: user?.fullName || "John Doe",
-          email: user?.email || "john.doe@example.com",
-          location: user?.location || "San Francisco, CA",
-          skillsOffered: user?.skillsOffered || [
-            "React",
-            "JavaScript",
-            "Node.js",
-          ],
-          skillsWanted: user?.skillsWanted || ["Python", "UI/UX Design"],
-          availability: user?.availability || ["Weekends", "Evenings"],
-          profilePicture: user?.profilePicture,
-        },
-        stats: {
-          swapsCompleted: 0,
-          avgRating: 0,
-          skillsShared: user?.skillsOffered?.length || 0,
-          skillsLearning: user?.skillsWanted?.length || 0,
-        },
-        incomingRequests: [],
-        sentRequests: [],
-        feedbackReceived: [],
-        feedbackGiven: [],
-      });
+      setDashboardData(null);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  // Load dashboard stats from new API
   const fetchDashboardStats = async () => {
     if (!user?.id) return;
 
@@ -161,17 +126,17 @@ export default function Dashboard() {
       setStatsError(null);
       setStatsLoading(true);
       const statsData = await userApi.getDashboardStats(user.id);
+
+      // ✅ Added this to update the dashboard stats
       setDashboardStats({
-        totalSwaps: statsData.totalSwaps || 0,
-        acceptedSwaps: statsData.acceptedSwaps || 0,
-        rejectedSwaps: statsData.rejectedSwaps || 0,
-        feedbacks: statsData.feedbacks || 0,
+        totalSwaps: statsData.totalSwaps,
+        acceptedSwaps: statsData.acceptedSwaps,
+        rejectedSwaps: statsData.rejectedSwaps,
+        feedbacks: statsData.feedbacks,
       });
     } catch (err: any) {
       console.error("Dashboard stats error:", err);
       setStatsError(err.message || "Failed to load dashboard stats");
-
-      // Keep default values on error
       setDashboardStats({
         totalSwaps: 0,
         acceptedSwaps: 0,
@@ -183,7 +148,6 @@ export default function Dashboard() {
     }
   };
 
-  // Load data on component mount
   useEffect(() => {
     if (isAuthenticated) {
       loadDashboardData();
@@ -191,7 +155,6 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, user?.id]);
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -208,16 +171,12 @@ export default function Dashboard() {
     setProcessingRequest(requestId);
     try {
       await swapApi.updateRequestStatus(requestId, "accepted");
-
-      // Update local state
       setDashboardData((prev) => {
         if (!prev) return prev;
         return {
           ...prev,
           incomingRequests: prev.incomingRequests.map((req) =>
-            req.id === requestId
-              ? { ...req, status: "accepted" as const }
-              : req,
+            req.id === requestId ? { ...req, status: "accepted" } : req
           ),
         };
       });
@@ -233,16 +192,12 @@ export default function Dashboard() {
     setProcessingRequest(requestId);
     try {
       await swapApi.updateRequestStatus(requestId, "rejected");
-
-      // Update local state
       setDashboardData((prev) => {
         if (!prev) return prev;
         return {
           ...prev,
           incomingRequests: prev.incomingRequests.map((req) =>
-            req.id === requestId
-              ? { ...req, status: "rejected" as const }
-              : req,
+            req.id === requestId ? { ...req, status: "rejected" } : req
           ),
         };
       });
@@ -257,8 +212,6 @@ export default function Dashboard() {
   const handleDeleteRequest = async (requestId: string) => {
     try {
       await swapApi.deleteRequest(requestId);
-
-      // Update local state
       setDashboardData((prev) => {
         if (!prev) return prev;
         return {

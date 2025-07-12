@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Header } from "../components/Header";
 import { useAuth } from "../contexts/AuthContext";
+const { login, updateUser } = useAuth(); // <- ensure `updateUser` is included
 import { authApi } from "../lib/api";
 import {
   Upload,
@@ -221,26 +222,7 @@ export default function Signup() {
       }
     } catch (error: any) {
       console.error("Error creating account:", error);
-
-      // Show user-friendly error message
-      if (
-        error.message?.includes("Cannot connect to backend") ||
-        error.message?.includes("API endpoint not found") ||
-        error.message?.includes("HTTP 404")
-      ) {
-        alert(
-          "Backend server not available. The app will continue in demo mode with sample data.",
-        );
-        // Attempt demo login
-        try {
-          await login(formData.email, formData.password);
-          navigate("/dashboard");
-        } catch (loginError) {
-          // If demo login fails, stay on signup page
-        }
-      } else {
-        alert(error.message || "Failed to create account. Please try again.");
-      }
+      alert(error.message || "Failed to create account. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
