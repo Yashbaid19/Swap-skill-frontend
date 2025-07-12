@@ -1,15 +1,28 @@
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// Determine base URL based on environment
+const getBaseURL = () => {
+  // If VITE_API_URL is explicitly set, use it
+  if (import.meta.env.VITE_API_URL) {
+    console.log("Using VITE_API_URL:", import.meta.env.VITE_API_URL);
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // In development (localhost), use proxy (empty string)
+  if (window.location.hostname === "localhost") {
+    console.log("Using localhost proxy");
+    return "";
+  }
+
+  // In production, use the backend URL
+  console.log("Using production backend URL");
+  return "https://skill-swap-backend-io0v.onrender.com";
+};
+
+const baseURL = getBaseURL();
+console.log("API baseURL configured as:", baseURL);
 
 // Helper function to get auth token
 const getAuthToken = () => {
-  const token = localStorage.getItem("authToken");
-  // Don't send demo token to backend
-  return token === "demo-token" ? null : token;
-};
-
-// Helper function to check if user is in demo mode
-const isDemoMode = () => {
-  return localStorage.getItem("authToken") === "demo-token";
+  return localStorage.getItem("authToken");
 };
 
 // Helper function to handle API responses
@@ -54,16 +67,12 @@ const handleResponse = async (response: Response) => {
 
 // Helper function to make authenticated requests
 const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
-  // If in demo mode, throw error to trigger fallback
-  if (isDemoMode()) {
-    throw new Error("Demo mode: API calls are disabled");
-  }
-
   const token = getAuthToken();
 
   try {
     const response = await fetch(url, {
       ...options,
+      mode: "cors",
       headers: {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
@@ -73,6 +82,17 @@ const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
     return response;
   } catch (networkError) {
     console.error("Network error:", networkError);
+
+    // Check if it's a CORS error
+    if (
+      networkError instanceof TypeError &&
+      networkError.message === "Failed to fetch"
+    ) {
+      throw new Error(
+        `CORS error: Cannot connect to backend server at ${baseURL}. This may be due to CORS policy restrictions. The backend may need to allow this domain: ${window.location.origin}`,
+      );
+    }
+
     throw new Error(
       `Cannot connect to backend server at ${baseURL}. Please check if the server is running and the URL is correct.`,
     );
@@ -93,6 +113,7 @@ export const authApi = {
     try {
       const response = await fetch(`${baseURL}/api/auth/signup`, {
         method: "POST",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
@@ -101,6 +122,19 @@ export const authApi = {
       return handleResponse(response);
     } catch (networkError) {
       console.error("Network error during signup:", networkError);
+      console.log("Current domain:", window.location.origin);
+      console.log("Backend URL:", `${baseURL}/api/auth/signup`);
+
+      // Check if it's a CORS error
+      if (
+        networkError instanceof TypeError &&
+        networkError.message === "Failed to fetch"
+      ) {
+        throw new Error(
+          `CORS error: The backend server at ${baseURL} is not configured to allow requests from ${window.location.origin}. Please contact the backend administrator to add this domain to the CORS whitelist.`,
+        );
+      }
+
       throw new Error(
         `Cannot connect to backend server at ${baseURL}. Please check if the server is running and the URL is correct.`,
       );
@@ -111,6 +145,7 @@ export const authApi = {
     try {
       const response = await fetch(`${baseURL}/api/auth/login`, {
         method: "POST",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
@@ -129,6 +164,7 @@ export const authApi = {
     try {
       const response = await fetch(`${baseURL}/api/auth/forgot-password`, {
         method: "POST",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
@@ -149,6 +185,7 @@ export const authApi = {
         `${baseURL}/api/auth/reset-password/${token}`,
         {
           method: "POST",
+          mode: "cors",
           headers: {
             "Content-Type": "application/json",
           },
@@ -225,16 +262,6 @@ export const userApi = {
   },
 
   uploadProfilePicture: async (file: File) => {
-    // If in demo mode, create a mock URL
-    if (isDemoMode()) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const mockImageUrl = URL.createObjectURL(file);
-          resolve({ imageUrl: mockImageUrl });
-        }, 1000);
-      });
-    }
-
     const formData = new FormData();
     formData.append("profilePhoto", file); // Backend expects "profilePhoto" field
 

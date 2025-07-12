@@ -1,17 +1,13 @@
 import { Link } from "react-router-dom";
 import { ArrowRightLeft } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { DemoModeIndicator } from "./DemoModeIndicator";
 
 export function Header() {
-  const { isAuthenticated, logout, isDemoMode } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
 
   return (
     <>
-      <DemoModeIndicator isDemoMode={isDemoMode} />
-      <header
-        className={`bg-skillswap-black text-white sticky z-40 ${isDemoMode ? "top-12" : "top-0"}`}
-      >
+      <header className="bg-skillswap-black text-white sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link
             to="/"

@@ -202,30 +202,7 @@ export default function Settings() {
       setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
     } catch (error: any) {
       console.error("Error updating profile:", error);
-
-      // Show more specific error messages
-      if (
-        error.message?.includes("Cannot connect to backend") ||
-        error.message?.includes("API endpoint not found") ||
-        error.message?.includes("HTTP 404")
-      ) {
-        setSuccessMessage(
-          "✅ Profile updated successfully! (Demo mode - changes saved locally)",
-        );
-        setTimeout(() => setSuccessMessage(""), 3000);
-
-        // Update local context in demo mode
-        updateUser({
-          fullName: profileData.fullName,
-          email: profileData.email,
-          location: profileData.location,
-          skillsOffered: profileData.skillsOffered,
-          skillsWanted: profileData.skillsWanted,
-          availability: profileData.availability,
-        });
-      } else {
-        alert(error.message || "Failed to update profile. Please try again.");
-      }
+      alert(error.message || "Failed to update profile. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -293,28 +270,9 @@ export default function Settings() {
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err: any) {
       console.error("Upload failed:", err);
-
-      if (
-        err.message?.includes("Cannot connect to backend") ||
-        err.message?.includes("API endpoint not found") ||
-        err.message?.includes("HTTP 404")
-      ) {
-        // Demo mode fallback
-        const mockImageUrl = URL.createObjectURL(file);
-        setImagePreview(mockImageUrl);
-        updateUser({
-          ...user,
-          profilePicture: mockImageUrl,
-        });
-        setSuccessMessage(
-          "✅ Profile picture updated successfully! (Demo mode)",
-        );
-        setTimeout(() => setSuccessMessage(""), 3000);
-      } else {
-        alert(
-          err.message || "Failed to upload profile picture. Please try again.",
-        );
-      }
+      alert(
+        err.message || "Failed to upload profile picture. Please try again.",
+      );
     } finally {
       setUploading(false);
     }
