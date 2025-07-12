@@ -52,6 +52,7 @@ const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
   try {
     const response = await fetch(url, {
       ...options,
+      mode: "cors",
       headers: {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
@@ -81,6 +82,7 @@ export const authApi = {
     try {
       const response = await fetch(`${baseURL}/api/auth/signup`, {
         method: "POST",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
