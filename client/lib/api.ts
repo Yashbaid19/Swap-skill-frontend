@@ -122,6 +122,19 @@ export const authApi = {
       return handleResponse(response);
     } catch (networkError) {
       console.error("Network error during signup:", networkError);
+      console.log("Current domain:", window.location.origin);
+      console.log("Backend URL:", `${baseURL}/api/auth/signup`);
+
+      // Check if it's a CORS error
+      if (
+        networkError instanceof TypeError &&
+        networkError.message === "Failed to fetch"
+      ) {
+        throw new Error(
+          `CORS error: The backend server at ${baseURL} is not configured to allow requests from ${window.location.origin}. Please contact the backend administrator to add this domain to the CORS whitelist.`,
+        );
+      }
+
       throw new Error(
         `Cannot connect to backend server at ${baseURL}. Please check if the server is running and the URL is correct.`,
       );
