@@ -21,6 +21,11 @@ export default defineConfig(({ mode }) => ({
   },
 }));
 
+export default defineConfig({
+  base: "/", // <-- Important for Vercel
+  plugins: [react()],
+})
+
 function expressPlugin(): Plugin {
   return {
     name: "express-plugin",
