@@ -1,9 +1,20 @@
-// Use proxy in development (localhost), direct URL in production
-const baseURL =
-  import.meta.env.VITE_API_URL ||
-  (window.location.hostname === "localhost"
-    ? ""
-    : "https://skill-swap-backend-io0v.onrender.com");
+// Determine base URL based on environment
+const getBaseURL = () => {
+  // If VITE_API_URL is explicitly set, use it
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // In development (localhost), use proxy (empty string)
+  if (window.location.hostname === "localhost") {
+    return "";
+  }
+
+  // In production, use the backend URL
+  return "https://skill-swap-backend-io0v.onrender.com";
+};
+
+const baseURL = getBaseURL();
 
 // Helper function to get auth token
 const getAuthToken = () => {
