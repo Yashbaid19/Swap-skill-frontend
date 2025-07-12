@@ -15,7 +15,6 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  isDemoMode: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
@@ -33,11 +32,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Load user data from localStorage if available
     const savedUser = localStorage.getItem("userData");
     return savedUser ? JSON.parse(savedUser) : null;
-  });
-
-  const [isDemoMode, setIsDemoMode] = useState(() => {
-    // Check if we're in demo mode
-    return localStorage.getItem("authToken") === "demo-token";
   });
 
   const login = async (email: string, password: string) => {
@@ -73,43 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setIsAuthenticated(true);
       setUser(userData);
-      setIsDemoMode(false);
     } catch (error: any) {
       console.error("Login failed:", error);
-
-      // Fallback demo login if backend is not available or API endpoints don't exist
-      if (
-        error.message?.includes("Cannot connect to backend") ||
-        error.message?.includes("API endpoint not found") ||
-        error.message?.includes("HTTP 404")
-      ) {
-        console.warn(
-          "Backend not available or incomplete, using demo login mode:",
-          error.message,
-        );
-
-        // Create demo user data
-        const demoUser = {
-          id: "demo-user",
-          fullName: "Demo User",
-          email: email,
-          location: "San Francisco, CA",
-          skillsOffered: ["React", "JavaScript", "Node.js"],
-          skillsWanted: ["Python", "UI/UX Design"],
-          availability: ["Weekends", "Evenings"],
-        };
-
-        // Store demo token and user data
-        localStorage.setItem("authToken", "demo-token");
-        localStorage.setItem("userData", JSON.stringify(demoUser));
-
-        setIsAuthenticated(true);
-        setUser(demoUser);
-        setIsDemoMode(true);
-
-        return;
-      }
-
       throw error;
     }
   };
@@ -117,7 +76,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    setIsDemoMode(false);
     localStorage.removeItem("authToken");
     localStorage.removeItem("userData");
   };
@@ -132,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, isDemoMode, login, logout, updateUser }}
+      value={{ isAuthenticated, user, login, logout, updateUser }}
     >
       {children}
     </AuthContext.Provider>
