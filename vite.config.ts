@@ -5,6 +5,7 @@ import { createServer } from "./server";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: "/", // Important for Vercel to avoid 404 on refresh
   server: {
     host: "::",
     port: 8080,
@@ -20,11 +21,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
 }));
-
-export default defineConfig({
-  base: "/", // <-- Important for Vercel
-  plugins: [react()],
-})
 
 function expressPlugin(): Plugin {
   return {
